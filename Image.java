@@ -65,4 +65,11 @@ public class Image {
 	public void blackNWhite() {
 		
 	}
+	
+	/**
+	 * Mirror the image
+	 */
+	public void mirror() {
+		
+	}
 }
