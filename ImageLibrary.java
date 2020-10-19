@@ -6,11 +6,16 @@
  * class is implemented. For the the program simply creates a non function user interface where future functionality will be built into.</p>
  * 
  * @author Josha Bonsu
- * @version 0.1
+ * @version 0.12
  * @since 10-14-2020
  */
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -22,6 +27,8 @@ public class ImageLibrary {
 	protected JTextArea infoText;
 	protected JList<Image> albumList;
 	protected HashMap<Integer, Image> album;
+	protected DefaultListModel<Image> model;
+	protected Image selectedImage;
 	
 	
 	/** Basic Constructor
@@ -52,19 +59,19 @@ public class ImageLibrary {
 	 */
 	void scrollSetUp() {
 		JList<Image> imageFile = new JList<>();
-		DefaultListModel<Image> md = new DefaultListModel<>();
-		imageFile.setModel(md);
+		model = new DefaultListModel<>();
+		imageFile.setModel(model);
 		imageFile.addListSelectionListener(new ListSelectionListener() {
 
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
-				Image selectedImage = imageFile.getSelectedValue();
+				selectedImage = imageFile.getSelectedValue();
 				/* Generic image info for testing 
 				String name = "File Name: " + selectedImage.name + "\n";
 				String size = "File Size: " + selectedImage.size + "\n";
 				more/accurate info will go here later */
 				
-				String infstr = "Name: ";
+				String infstr = "Path: " + selectedImage.getPath();
 				infoText.setText(infstr);
 			}
 			
@@ -100,9 +107,19 @@ public class ImageLibrary {
 		JButton save = new JButton("save");
 		JButton upload = new JButton("upload");
 		JButton delete = new JButton("delete");
+		JButton view = new JButton("open");
+		
+		upload.setActionCommand("upload");
+		view.setActionCommand("view");
+		ActionListener upList = new UpList();
+		upload.addActionListener(upList);
+		view.addActionListener(upList);
 		mButtons.add(save);
 		mButtons.add(upload);
 		mButtons.add(delete);
+		mButtons.add(view);
+		
+		
 		
 		JTextArea info = new JTextArea(infoString());
 		info.setEditable(false);
@@ -112,25 +129,46 @@ public class ImageLibrary {
 		infoText = info;
 	}
 	
+	class UpList implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			if(e.getActionCommand().equals("upload"))
+				uploadImage();
+			else if(e.getActionCommand().equals("view")) {
+				viewImage();
+			}
+		}
+	}
+	
 	/**Creates a new image object and adds it to the hashMap of images
 	 * 
 	 * @param img an Image object to be uploaded
 	 * @return true is the images was successfully uploaded, false if otherwise.
 	 */
-	boolean uploadImage(Image img) {
-		/* cannot fully implement without proper image class
-		 * Note, an actionlistener connected to the upload button will call this method,
-		 * prompt user for information to create the image.
-		 * I need to know what info the user needs to provide to create the image.
-		 * Each image object is given a integer key according to when it was added
-		 * No two image objects are the same
+	boolean uploadImage() {
+		JFileChooser inImg = new JFileChooser();
+		int approved = inImg.showOpenDialog(mainFrame);
+		if(approved == JFileChooser.APPROVE_OPTION) {
+			File imf = inImg.getSelectedFile();
+			try {
+				album.put(album.size(), new Image(imf.getPath()));
+			}
+			catch (Exception e) {
+				System.out.println("Invalid File Path");
+				return false;
+			}
+			model.addElement(album.get(album.size() - 1));
+			albumList.setModel(model);
+		}
+		return true;
+	}
+	
+	boolean viewImage() {
 		try {
-			album.put(album.size() + 1, new Image());
+			ImageViewer a = new ImageViewer(selectedImage);
+		} catch (Exception e) {
+			System.out.println("Invalid file");
+			return false;
 		}
-		catch (Exception e) {
-			
-		}
-		*/
 		return true;
 	}
 	
