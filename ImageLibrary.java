@@ -35,12 +35,13 @@ public class ImageLibrary {
 	 */
 	public ImageLibrary() {
 		album = new HashMap<Integer, Image>();
+		loginDialogue();
 		frameSetUp();
 		scrollSetUp();
 		infoSetUp();
-		mainFrame.setVisible(true); // this line might be put in another class?
+		//mainFrame.setVisible(true); // this line might be put in another class?
 	}
-
+	
 	/**
 	 * Sets up the frame
 	 * 
@@ -154,7 +155,7 @@ public class ImageLibrary {
 			try {
 				album.put(album.size(), new Image(imf.getPath()));
 			} catch (Exception e) {
-				System.out.println("Invalid File Path");
+				JOptionPane.showMessageDialog(new JFrame(), "Invalid File Path");
 				return false;
 			}
 			model.addElement(album.get(album.size() - 1));
@@ -167,7 +168,7 @@ public class ImageLibrary {
 		try {
 			ImageViewer a = new ImageViewer(selectedImage);
 		} catch (Exception e) {
-			System.out.println("Invalid file");
+			JOptionPane.showMessageDialog(new JFrame(), "Invalid file");
 			return false;
 		}
 		return true;
@@ -205,10 +206,6 @@ public class ImageLibrary {
 		return 1;
 	}
 
-	// test driver. Will be removed for iteration 1
-	public static void main(String[] args) {
-		ImageLibrary a = new ImageLibrary();
-	}
 
 	/*
 	 * temporary Image class for testing private class Image { public String name;
