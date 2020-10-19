@@ -35,7 +35,6 @@ public class ImageLibrary {
 	 */
 	public ImageLibrary() {
 		album = new HashMap<Integer, Image>();
-		loginDialogue();
 		frameSetUp();
 		scrollSetUp();
 		infoSetUp();
