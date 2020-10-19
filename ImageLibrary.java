@@ -1,4 +1,4 @@
-/* <p>ImageLibrary is a class that creates a User Interface for uploading and storing images. The user class will call this function.
+/** <p>ImageLibrary is a class that creates a User Interface for uploading and storing images. The user class will call this function.
  * user will have there own ImageLibrary.
  * </p>
  * 
@@ -14,7 +14,6 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -22,16 +21,16 @@ import javax.swing.event.ListSelectionListener;
 import java.util.HashMap;
 
 public class ImageLibrary {
-	
+
 	protected JFrame mainFrame;
 	protected JTextArea infoText;
 	protected JList<Image> albumList;
 	protected HashMap<Integer, Image> album;
 	protected DefaultListModel<Image> model;
 	protected Image selectedImage;
-	
-	
-	/** Basic Constructor
+
+	/**
+	 * Basic Constructor
 	 * 
 	 */
 	public ImageLibrary() {
@@ -39,10 +38,11 @@ public class ImageLibrary {
 		frameSetUp();
 		scrollSetUp();
 		infoSetUp();
-		mainFrame.setVisible(true); //this line might be put in another class?
+		mainFrame.setVisible(true); // this line might be put in another class?
 	}
-	
-	/** Sets up the frame
+
+	/**
+	 * Sets up the frame
 	 * 
 	 */
 	void frameSetUp() {
@@ -53,8 +53,9 @@ public class ImageLibrary {
 		testFrame.setLayout(new GridLayout(0, 2));
 		mainFrame = testFrame;
 	}
-	
-	/** Sets up the scroll plane in which the objects in the image album are listed
+
+	/**
+	 * Sets up the scroll plane in which the objects in the image album are listed
 	 * 
 	 */
 	void scrollSetUp() {
@@ -66,49 +67,41 @@ public class ImageLibrary {
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
 				selectedImage = imageFile.getSelectedValue();
-				/* Generic image info for testing 
-				String name = "File Name: " + selectedImage.name + "\n";
-				String size = "File Size: " + selectedImage.size + "\n";
-				more/accurate info will go here later */
-				
+				/*
+				 * Generic image info for testing String name = "File Name: " +
+				 * selectedImage.name + "\n"; String size = "File Size: " + selectedImage.size +
+				 * "\n"; more/accurate info will go here later
+				 */
+
 				String infstr = "Path: " + selectedImage.getPath();
 				infoText.setText(infstr);
 			}
-			
+
 		});
-	
-		
-		JScrollPane pane = new JScrollPane(imageFile, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+		JScrollPane pane = new JScrollPane(imageFile, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		pane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 13));
 		pane.getVerticalScrollBar().setPreferredSize(new Dimension(13, 0));
 		mainFrame.add(pane);
 		albumList = imageFile;
 	}
-	
+
+
 	/**
-	 * sets up info string
-	 * @return returns string containing info of the image class
-	 */
-	String infoString() {
-		String name = "File Name: \n";
-		String size = "File Size: \n";
-		String infstr = name + size;
-		return infstr;
-	}
-	
-	/** Sets up info plane
+	 * Sets up info plane
 	 * 
 	 */
 	void infoSetUp() {
 		JPanel imageInfo = new JPanel();
 		imageInfo.setLayout(new GridLayout(2, 0));
 		JPanel mButtons = new JPanel();
-		
+
 		JButton save = new JButton("save");
 		JButton upload = new JButton("upload");
 		JButton delete = new JButton("delete");
 		JButton view = new JButton("open");
-		
+
 		upload.setActionCommand("upload");
 		view.setActionCommand("view");
 		ActionListener upList = new UpList();
@@ -118,10 +111,8 @@ public class ImageLibrary {
 		mButtons.add(upload);
 		mButtons.add(delete);
 		mButtons.add(view);
-		
-		
-		
-		JTextArea info = new JTextArea(infoString());
+
+		JTextArea info = new JTextArea("Path: ");
 		info.setEditable(false);
 		imageInfo.add(info);
 		imageInfo.add(mButtons);
@@ -129,17 +120,28 @@ public class ImageLibrary {
 		infoText = info;
 	}
 	
+	/**<p>The UpList Class is an inner class acting as an action listener, meant to track events on the main UI:</p>
+	 * Save
+	 * Upload
+	 * Delete
+	 * And view
+	 * 
+	 * @author Josha Bonsu
+	 * @version 0.12
+	 * @since 10-14-2020
+	 */
 	class UpList implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			if(e.getActionCommand().equals("upload"))
+			if (e.getActionCommand().equals("upload"))
 				uploadImage();
-			else if(e.getActionCommand().equals("view")) {
+			else if (e.getActionCommand().equals("view")) {
 				viewImage();
 			}
 		}
 	}
-	
-	/**Creates a new image object and adds it to the hashMap of images
+
+	/**
+	 * Creates a new image object and adds it to the hashMap of images
 	 * 
 	 * @param img an Image object to be uploaded
 	 * @return true is the images was successfully uploaded, false if otherwise.
@@ -147,12 +149,11 @@ public class ImageLibrary {
 	boolean uploadImage() {
 		JFileChooser inImg = new JFileChooser();
 		int approved = inImg.showOpenDialog(mainFrame);
-		if(approved == JFileChooser.APPROVE_OPTION) {
+		if (approved == JFileChooser.APPROVE_OPTION) {
 			File imf = inImg.getSelectedFile();
 			try {
 				album.put(album.size(), new Image(imf.getPath()));
-			}
-			catch (Exception e) {
+			} catch (Exception e) {
 				System.out.println("Invalid File Path");
 				return false;
 			}
@@ -161,7 +162,7 @@ public class ImageLibrary {
 		}
 		return true;
 	}
-	
+
 	boolean viewImage() {
 		try {
 			ImageViewer a = new ImageViewer(selectedImage);
@@ -171,17 +172,21 @@ public class ImageLibrary {
 		}
 		return true;
 	}
-	
-	/**removes an image from the image hashMap
+
+	/**
+	 * removes an image from the image hashMap
 	 * 
 	 * @param a Image object to me removed
-	 * @return true if the image object was successfully removed from the hashmap, false if otherwise
+	 * @return true if the image object was successfully removed from the hashmap,
+	 *         false if otherwise
 	 */
 	boolean deleteImage(Image img) {
 		return true;
 	}
-	
-	/**Saves adjustments made to the image that is currently opened. It will override the current object with a new image object
+
+	/**
+	 * Saves adjustments made to the image that is currently opened. It will
+	 * override the current object with a new image object
 	 * 
 	 * @param img Image object to override/save
 	 * @return true if the image was successfully saved, false if otherwise
@@ -189,8 +194,9 @@ public class ImageLibrary {
 	boolean saveImage(Image img) {
 		return true;
 	}
-	
-	/**searches for an image
+
+	/**
+	 * searches for an image
 	 * 
 	 * @param img Image object to be searched
 	 * @return
@@ -198,27 +204,19 @@ public class ImageLibrary {
 	int seachImage(Image img) {
 		return 1;
 	}
-	
-	//test driver. Will be removed for iteration 1
+
+	// test driver. Will be removed for iteration 1
 	public static void main(String[] args) {
 		ImageLibrary a = new ImageLibrary();
 	}
-	
-	/* temporary Image class for testing
-	private class Image {
-		public String name;
-		public double size;
-		
-		public Image(String name, double size) {
-			this.name = name;
-			this.size = size;
-		}
-		
-		public String toString(){
-			return name;
-		}
-	} 
-	*/
+
+	/*
+	 * temporary Image class for testing private class Image { public String name;
+	 * public double size;
+	 * 
+	 * public Image(String name, double size) { this.name = name; this.size = size;
+	 * }
+	 * 
+	 * public String toString(){ return name; } }
+	 */
 }
-
-
