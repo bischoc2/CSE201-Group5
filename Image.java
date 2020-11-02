@@ -6,9 +6,7 @@ import java.awt.image.*;
 import java.io.*;
 
 import javax.imageio.*;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.CvType;
+
 
 public class Image {
 	private BufferedImage picture;
@@ -31,8 +29,12 @@ public class Image {
 	 * @param height the height user want to crop
 	 * @param width  the width user want to crop
 	 */
-	public void crop(int height, int width) {
-
+	public void crop(int width, int height) {
+		int maxWidth = picture.getWidth();
+		int maxHeight = picture.getHeight();
+		width = width < maxWidth ? width : maxWidth;
+		height = height < maxHeight ? height : maxHeight;
+		picture = picture.getSubimage(0, 0, width, height);
 	}
 
 	/**
@@ -49,13 +51,29 @@ public class Image {
 	/**
 	 * Stretch the image with user specified height and width
 	 * 
-	 * @param height the height user want to stretch to
-	 * @param width  the width user want to stretch to
+	 * @param height the scale of height user want to stretch to
+	 * @param width  the scale of width user want to stretch to
 	 */
-	public void stretch(int height, int width) {
-
+	public void stretch(double width, double height) {
+		int w = picture.getWidth();
+		int h = picture.getHeight();
+		BufferedImage temp = deepCopy(picture);
+		int scaledHeight = (int)(h*height);
+		int scaledWidth = (int)(w*width);
+		BufferedImage after = new BufferedImage(scaledWidth, scaledHeight, picture.getType());
+		Graphics2D g2d = after.createGraphics();
+		g2d.drawImage(temp, 0, 0, scaledWidth, scaledHeight, null);
+		g2d.dispose();
+		picture = after;
 	}
-
+	
+	private BufferedImage deepCopy(BufferedImage temp) {
+		ColorModel cm = temp.getColorModel();
+		boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+		WritableRaster raster = temp.copyData(null);
+		return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+	}
+	
 	/**
 	 * Change the saturation of the image with user specified number
 	 * 
@@ -93,15 +111,20 @@ public class Image {
 	 * @param B the blue value for the color of the image
 	 */
 	public void monochrome(int R, int G, int B) {
-
+		int width = picture.getWidth();
+		int height = picture.getHeight();
+		for (int i = 0; i < height; i++) {
+			for (int j = 0; j < width; j++) {
+				Color c = new Color(picture.getRGB(j, i));
+				int red = (int)(c.getRed() * R / 255);
+				int green = (int)(c.getGreen() * G / 255 );
+				int blue = (int)(c.getBlue() * B / 255);
+				Color newColor = new Color(red, green, blue);
+				picture.setRGB(j, i, newColor.getRGB());
+			}
+		}
 	}
 
-	/**
-	 * Change the image to black and white
-	 */
-	public void blackNWhite() {
-
-	}
 	
 	/**
 	 * Mirror the image
