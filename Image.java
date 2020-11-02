@@ -26,15 +26,19 @@ public class Image {
 	/**
 	 * Crop the image
 	 * 
+	 * @param x the x-coordinate of the cropped image
+	 * @param y the y-coordinate of the cropped image
 	 * @param height the height user want to crop
 	 * @param width  the width user want to crop
 	 */
-	public void crop(int width, int height) {
+	public void crop(int x, int y, int width, int height) {
 		int maxWidth = picture.getWidth();
 		int maxHeight = picture.getHeight();
 		width = width < maxWidth ? width : maxWidth;
 		height = height < maxHeight ? height : maxHeight;
-		picture = picture.getSubimage(0, 0, width, height);
+		x = x < (maxWidth - width) ? x : (maxWidth - width);
+		y = y < (maxHeight - height) ? y : (maxHeight - height);
+		picture = picture.getSubimage(x, y, width, height);
 	}
 
 	/**
