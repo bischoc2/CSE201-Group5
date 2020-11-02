@@ -49,8 +49,8 @@ public class ImageViewer {
 		JButton restore = new JButton("Restore");
 		restore.setActionCommand("rest");
 		
-		JButton strech = new JButton("Strech Image");
-		strech.setActionCommand("str");
+		JButton stretch = new JButton("Stretch Image");
+		stretch.setActionCommand("str");
 		
 		JButton mono = new JButton("Monochrome");
 		mono.setActionCommand("mono");
@@ -86,27 +86,79 @@ public class ImageViewer {
 
 				}
 				else if (e.getActionCommand().equals("str")) {
+					JPanel stretchOptions = new JPanel();
+					stretchOptions.setLayout(new GridLayout(0, 2, 3, 3));
+					
+					JLabel width = new JLabel("Width: ");
+					JLabel height = new JLabel("Height: ");
+					JTextField wid = new JTextField(4);
+					JTextField hig = new JTextField(4);
+					
+					stretchOptions.add(width);
+					stretchOptions.add(wid);
+					stretchOptions.add(height);
+					stretchOptions.add(hig);
+					
+					int confirm = JOptionPane.showConfirmDialog(new JFrame(), stretchOptions, "Input Stretch Factor", JOptionPane.OK_CANCEL_OPTION);
+					if(confirm == JOptionPane.OK_OPTION) {
+						try {
+							image.stretch(Double.parseDouble(wid.getText()), Double.parseDouble(hig.getText()));
+						}
+						catch(Exception e1) {
+							JOptionPane.showMessageDialog(new JFrame(), "Scalers are too big / too small");
+						}
+						imgLabel.setIcon(new ImageIcon(image.getPicture()));
+						imgLabel.repaint();
+						imageFrame.revalidate();
+					}
 					
 				}
 				else if (e.getActionCommand().equals("mono")) {
+					JPanel monoOptions = new JPanel();
+					monoOptions.setLayout(new GridLayout(0, 2, 3, 3));
 					
+					JLabel red = new JLabel("Red: ");
+					JLabel green = new JLabel("Green: ");
+					JLabel blue = new JLabel("Blue: ");
+					JTextField r = new JTextField(4);
+					JTextField g = new JTextField(4);
+					JTextField b = new JTextField(4);
+					
+					
+					monoOptions.add(red);
+					monoOptions.add(r);
+					monoOptions.add(green);
+					monoOptions.add(g);
+					monoOptions.add(blue);
+					monoOptions.add(b);
+					
+					int confirm = JOptionPane.showConfirmDialog(new JFrame(), monoOptions, "Input RGB value (0 - 255)", JOptionPane.OK_CANCEL_OPTION);
+					if(confirm == JOptionPane.OK_OPTION) {
+						try {
+							image.monochrome(Integer.parseInt(r.getText()), Integer.parseInt(g.getText()), Integer.parseInt(b.getText()));
+						}
+						catch(Exception e1) {
+							JOptionPane.showMessageDialog(new JFrame(), "RBG values must be between 0 and 255");
+						}
+						imgLabel.setIcon(new ImageIcon(image.getPicture()));
+						imgLabel.repaint();
+						imageFrame.revalidate();
+					}
 				}
-				
 			}
-			
 		};
 		
 		mirror.addActionListener(imgList);
 		sat.addActionListener(imgList);
 		restore.addActionListener(imgList);
-		strech.addActionListener(imgList);
+		stretch.addActionListener(imgList);
 		mono.addActionListener(imgList);
 		
 		ctrl.add(satText);
 		ctrl.add(sat);
 		ctrl.add(mirror);
 		ctrl.add(restore);
-		ctrl.add(strech);
+		ctrl.add(stretch);
 		ctrl.add(mono);
 		imageFrame.add(ctrl);
 	}
