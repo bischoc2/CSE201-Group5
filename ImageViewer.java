@@ -9,7 +9,6 @@ public class ImageViewer {
 	
 	private JFrame imageFrame;
 	private Image image;
-	private JScrollPane imagePane;
 	private JLabel imgLabel;
 
 	public ImageViewer(Image img) {
@@ -28,7 +27,6 @@ public class ImageViewer {
 		iframe.setResizable(true);
 		iframe.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		imageFrame = iframe;
-		imagePane = ipane;
 		controlPanelSetUp();
 		iframe.setVisible(true);
 		
@@ -54,6 +52,9 @@ public class ImageViewer {
 		
 		JButton mono = new JButton("Monochrome");
 		mono.setActionCommand("mono");
+		
+		JButton crop = new JButton("Crop");
+		crop.setActionCommand("crop");
 		
 		ActionListener imgList = new ActionListener() {
 
@@ -145,6 +146,42 @@ public class ImageViewer {
 						imageFrame.revalidate();
 					}
 				}
+				
+				else if(e.getActionCommand().equals("crop")){
+					JPanel cropOptions = new JPanel();
+					cropOptions.setLayout(new GridLayout(0, 2, 3, 3));
+					
+					JLabel LeftX = new JLabel("Top Left X Coords: ");
+					JLabel LeftY = new JLabel("Top Right Y Coords: ");
+					JLabel Width = new JLabel("Width: ");
+					JLabel Height = new JLabel("Height: ");
+					JTextField lx = new JTextField(4);
+					JTextField ly = new JTextField(4);
+					JTextField h = new JTextField(4);
+					JTextField w = new JTextField(4);
+					
+					cropOptions.add(LeftX);
+					cropOptions.add(lx);
+					cropOptions.add(LeftY);
+					cropOptions.add(ly);
+					cropOptions.add(Width);
+					cropOptions.add(w);
+					cropOptions.add(Height);
+					cropOptions.add(h);
+					
+					int confirm = JOptionPane.showConfirmDialog(new JFrame(), cropOptions, "Input Crop Parameters", JOptionPane.OK_CANCEL_OPTION);
+					if(confirm == JOptionPane.OK_OPTION) {
+						try {
+							image.crop(Integer.parseInt(lx.getText()), Integer.parseInt(ly.getText()), Integer.parseInt(w.getText()), Integer.parseInt(h.getText()));
+						}
+						catch(Exception e1) {
+							JOptionPane.showMessageDialog(new JFrame(), "Crop Parameters Invalid");
+						}
+						imgLabel.setIcon(new ImageIcon(image.getPicture()));
+						imgLabel.repaint();
+						imageFrame.revalidate();
+					}
+				}
 			}
 		};
 		
@@ -153,6 +190,14 @@ public class ImageViewer {
 		restore.addActionListener(imgList);
 		stretch.addActionListener(imgList);
 		mono.addActionListener(imgList);
+		crop.addActionListener(imgList);
+		
+		sat.setToolTipText("Increase or decrease the saturation of the image. Decrease: 0-100, Increase: 100+ ");
+		restore.setToolTipText("Restore the image to the version on disk. Undos all changes before saving");
+		mirror.setToolTipText("Flips the image vertically");
+		stretch.setToolTipText("Scales the image given 2 multiples. Width: Scales the width of the image by the given value. Height: Scales the height of the image by the given value");
+		mono.setToolTipText("Monochromes the image based on a new color by the given RGB values");
+		crop.setToolTipText("Crops the image. Top left X and Top left Y: Top left coordinates for the new Image Width and Height: Width and Height of the new image, relative to the given top left corner");;
 		
 		ctrl.add(satText);
 		ctrl.add(sat);
@@ -160,6 +205,7 @@ public class ImageViewer {
 		ctrl.add(restore);
 		ctrl.add(stretch);
 		ctrl.add(mono);
+		ctrl.add(crop);
 		imageFrame.add(ctrl);
 	}
 }
