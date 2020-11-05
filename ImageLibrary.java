@@ -101,6 +101,11 @@ public class ImageLibrary {
 		JButton upload = new JButton("upload");
 		JButton delete = new JButton("delete");
 		JButton view = new JButton("open");
+		
+		save.setToolTipText("Save the image to disk");
+		upload.setToolTipText("Upload a new image from disk to the Photo Library");
+		delete.setToolTipText("Delete the selected image from the Photo Library");
+		view.setToolTipText("Open and edit the selected image from the photo library");
 
 		upload.setActionCommand("upload");
 		view.setActionCommand("view");
@@ -168,6 +173,7 @@ public class ImageLibrary {
 			ImageViewer a = new ImageViewer(selectedImage);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(new JFrame(), "Invalid file");
+			e.printStackTrace();
 			return false;
 		}
 		return true;
@@ -204,15 +210,4 @@ public class ImageLibrary {
 	int seachImage(Image img) {
 		return 1;
 	}
-
-
-	/*
-	 * temporary Image class for testing private class Image { public String name;
-	 * public double size;
-	 * 
-	 * public Image(String name, double size) { this.name = name; this.size = size;
-	 * }
-	 * 
-	 * public String toString(){ return name; } }
-	 */
 }
