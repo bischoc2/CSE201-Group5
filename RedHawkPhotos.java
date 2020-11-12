@@ -1,3 +1,5 @@
+
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -5,6 +7,11 @@ import java.awt.event.WindowListener;
 
 import javax.swing.*;
 
+/** The RedHawkPhotos class in the driver for the entire RedHawk Photos project. Lets users login and interact with their own image libraries
+ *  @author Josha Bonsu
+ *  @version 0.2
+ *  @since 10-14-2020
+ */
 public class RedHawkPhotos {
 	public static void main (String[] args) {
 		User a = new User("alex", "1234");
@@ -86,8 +93,5 @@ public class RedHawkPhotos {
 		logpanel.add(login);
 		logPanel.add(logpanel);
 		logPanel.setVisible(true);
-		
-		
-		
 	}
 }
