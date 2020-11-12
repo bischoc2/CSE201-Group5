@@ -4,10 +4,14 @@ import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.*;
 import java.io.*;
-
 import javax.imageio.*;
 
-
+/** Class that converts any image on disk into a BufferedImage, allowing it to me modified with the given tools 
+ * 
+ * @author Zeyu Su
+ * @version 0.2
+ * @since 10-14-2020
+ */
 public class Image {
 	private BufferedImage picture;
 	private String ipath;
