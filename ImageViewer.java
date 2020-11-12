@@ -1,3 +1,6 @@
+
+
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -5,11 +8,24 @@ import java.io.IOException;
 
 import javax.swing.*;
 
+/** <p>ImageViewer is a class that creates a User Interface editing and modifying images. The user class will call this function.
+ * user will have there own ImageLibrary.
+ * </p>
+ * 
+ * @author Josha Bonsu
+ * @version 0.2
+ * @since 10-14-2020
+ */
 public class ImageViewer {
 	
 	private JFrame imageFrame;
 	private Image image;
 	private JLabel imgLabel;
+	
+	/** Basic constructor. Calls methods to create imageViewerUI
+	 * 
+	 * @param img image object to be viewed
+	 */
 
 	public ImageViewer(Image img) {
 		image = img;
@@ -32,6 +48,9 @@ public class ImageViewer {
 		
 	}
 	
+	/** Sets up UI where modification tools are stored.
+	 * 
+	 */
 	private void controlPanelSetUp() {
 		JPanel ctrl = new JPanel();
 		ctrl.setSize(500, 300);
