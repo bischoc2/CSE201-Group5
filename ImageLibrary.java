@@ -1,25 +1,22 @@
-/** <p>ImageLibrary is a class that creates a User Interface for uploading and storing images. The user class will call this function.
- * user will have there own ImageLibrary.
- * </p>
- * 
- * <p>1st implementation of ImageLibrary (Iteration one). Will not work properly without image class. Methods left unfinished until the image
- * class is implemented. For the the program simply creates a non function user interface where future functionality will be built into.</p>
- * 
- * @author Josha Bonsu
- * @version 0.12
- * @since 10-14-2020
- */
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.util.HashMap;
 
+/** <p>ImageLibrary is a class that creates a User Interface for uploading and storing images. The user class will call this function.
+ * user will have there own ImageLibrary.
+ * </p>
+ * 
+ * @author Josha Bonsu
+ * @version 0.2
+ * @since 10-14-2020
+ */
 public class ImageLibrary {
 
 	protected JFrame mainFrame;
@@ -42,7 +39,7 @@ public class ImageLibrary {
 	}
 	
 	/**
-	 * Sets up the frame
+	 * Sets up the main JFrame
 	 * 
 	 */
 	void frameSetUp() {
@@ -109,9 +106,11 @@ public class ImageLibrary {
 
 		upload.setActionCommand("upload");
 		view.setActionCommand("view");
+		save.setActionCommand("save");
 		ActionListener upList = new UpList();
 		upload.addActionListener(upList);
 		view.addActionListener(upList);
+		save.addActionListener(upList);
 		mButtons.add(save);
 		mButtons.add(upload);
 		mButtons.add(delete);
@@ -142,14 +141,16 @@ public class ImageLibrary {
 			else if (e.getActionCommand().equals("view")) {
 				viewImage();
 			}
+			else if(e.getActionCommand().equals("save")) {
+				saveImage(selectedImage);
+			}
 		}
 	}
 
 	/**
 	 * Creates a new image object and adds it to the hashMap of images
 	 * 
-	 * @param img an Image object to be uploaded
-	 * @return true is the images was successfully uploaded, false if otherwise.
+	 * @return true if the images was successfully uploaded, false if otherwise.
 	 */
 	boolean uploadImage() {
 		JFileChooser inImg = new JFileChooser();
@@ -168,6 +169,10 @@ public class ImageLibrary {
 		return true;
 	}
 
+	/** Create ImageViewer object; creates UI where images can be viewed and edited
+	 *  
+	 * @return true if the imageViewer was created. False if otherwise
+	 */
 	boolean viewImage() {
 		try {
 			ImageViewer a = new ImageViewer(selectedImage);
@@ -182,12 +187,12 @@ public class ImageLibrary {
 	/**
 	 * removes an image from the image hashMap
 	 * 
-	 * @param a Image object to me removed
+	 * @param img Image object to be removed
 	 * @return true if the image object was successfully removed from the hashmap,
 	 *         false if otherwise
 	 */
 	boolean deleteImage(Image img) {
-		return true;
+		return false;
 	}
 
 	/**
@@ -198,14 +203,22 @@ public class ImageLibrary {
 	 * @return true if the image was successfully saved, false if otherwise
 	 */
 	boolean saveImage(Image img) {
-		return true;
+		try {
+			File savedImage = new File(img.getPath());
+			ImageIO.write(img.getPicture(), "jpg", savedImage);
+			return true;
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	/**
 	 * searches for an image
 	 * 
 	 * @param img Image object to be searched
-	 * @return
+	 * @return index where image is stored
 	 */
 	int seachImage(Image img) {
 		return 1;
