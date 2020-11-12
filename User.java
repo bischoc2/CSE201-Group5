@@ -1,4 +1,11 @@
 public class User {
+	
+	/** User class creates users (accounts) with their own image library
+	 * 
+	 * @author Patrica Lennon
+	 * @version 0.2
+	 * @since 10-14-2020
+	 */
 	private String userName;
 	private String password;
 	private ImageLibrary imagelibrary;
@@ -17,5 +24,4 @@ public class User {
 	public ImageLibrary getImageLibrary() {
 		return imagelibrary;
 	}
-
 }
