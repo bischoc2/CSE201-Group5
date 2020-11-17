@@ -12,9 +12,11 @@ import javax.imageio.*;
  * @version 0.2
  * @since 10-14-2020
  */
-public class Image {
-	private BufferedImage picture;
+public class Image implements Serializable {
+	private transient BufferedImage picture;
 	private String ipath;
+	private int key;
+	private String Name;
 
 	/**
 	 * Basic Constructor that reads in the image file
@@ -25,6 +27,20 @@ public class Image {
 	public Image(String fileName) throws IOException {
 		ipath = fileName;
 		picture = ImageIO.read(new File(fileName));
+		Name = ipath.substring(ipath.lastIndexOf("\\", ipath.length() - 1) + 1);
+	}
+	
+	/**
+	 * Sets records the key (position) of the image in the image library.
+	 * 
+	 * @param akey int key value
+	 */
+	public void setKey(int akey) {
+		key = akey;
+	}
+	
+	public int getKey() {
+		return key;
 	}
 
 	/**
@@ -153,8 +169,12 @@ public class Image {
 	public String getPath() {
 		return ipath;
 	}
+	
+	public void setName(String str) {
+		Name = str;
+	}
 
 	public String toString() {
-		return ipath.substring(ipath.lastIndexOf("\\", ipath.length() - 1) + 1);
+		return Name;
 	}
 }
