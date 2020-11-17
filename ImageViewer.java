@@ -201,6 +201,7 @@ public class ImageViewer {
 						imageFrame.revalidate();
 					}
 				}
+				RedHawkPhotos.writeOut();
 			}
 		};
 		
