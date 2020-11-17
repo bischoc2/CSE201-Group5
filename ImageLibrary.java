@@ -2,12 +2,15 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.Serializable;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+
 import java.util.HashMap;
+import java.util.Set;
 
 /** <p>ImageLibrary is a class that creates a User Interface for uploading and storing images. The user class will call this function.
  * user will have there own ImageLibrary.
@@ -17,7 +20,7 @@ import java.util.HashMap;
  * @version 0.2
  * @since 10-14-2020
  */
-public class ImageLibrary {
+public class ImageLibrary implements Serializable {
 
 	protected JFrame mainFrame;
 	protected JTextArea infoText;
@@ -69,9 +72,12 @@ public class ImageLibrary {
 				 * selectedImage.name + "\n"; String size = "File Size: " + selectedImage.size +
 				 * "\n"; more/accurate info will go here later
 				 */
-
-				String infstr = "Path: " + selectedImage.getPath();
-				infoText.setText(infstr);
+				if (selectedImage == null) {
+					infoText.setText("Path: ");
+				} else {
+					String infstr = "Path: " + selectedImage.getPath();
+					infoText.setText(infstr);
+				}
 			}
 
 		});
@@ -98,23 +104,37 @@ public class ImageLibrary {
 		JButton upload = new JButton("upload");
 		JButton delete = new JButton("delete");
 		JButton view = new JButton("open");
+		JButton search = new JButton("search");
+		JButton rename = new JButton("rename");
 		
 		save.setToolTipText("Save the image to disk");
 		upload.setToolTipText("Upload a new image from disk to the Photo Library");
 		delete.setToolTipText("Delete the selected image from the Photo Library");
-		view.setToolTipText("Open and edit the selected image from the photo library");
+		view.setToolTipText("Open and edit the selected image from the Photo Library");
+		search.setToolTipText("Search for an image in the Photo Library");
+		rename.setToolTipText("Renames the selected image");
 
 		upload.setActionCommand("upload");
 		view.setActionCommand("view");
 		save.setActionCommand("save");
+		delete.setActionCommand("delete");
+		search.setActionCommand("search");
+		rename.setActionCommand("rename");
+		
 		ActionListener upList = new UpList();
 		upload.addActionListener(upList);
 		view.addActionListener(upList);
 		save.addActionListener(upList);
+		delete.addActionListener(upList);
+		search.addActionListener(upList);
+		rename.addActionListener(upList);
+		
 		mButtons.add(save);
 		mButtons.add(upload);
 		mButtons.add(delete);
 		mButtons.add(view);
+		mButtons.add(search);
+		mButtons.add(rename);
 
 		JTextArea info = new JTextArea("Path: ");
 		info.setEditable(false);
@@ -139,11 +159,34 @@ public class ImageLibrary {
 			if (e.getActionCommand().equals("upload"))
 				uploadImage();
 			else if (e.getActionCommand().equals("view")) {
-				viewImage();
+				viewImage(selectedImage);
 			}
 			else if(e.getActionCommand().equals("save")) {
 				saveImage(selectedImage);
 			}
+			else if(e.getActionCommand().equals("delete")) {
+				deleteImage(selectedImage);
+			}
+			else if(e.getActionCommand().equals("search")) {
+				searchImage();
+			}
+			else if(e.getActionCommand().equals("rename")) {
+				JPanel namePanel = new JPanel();
+				namePanel.setLayout(new GridLayout(0, 2, 3, 3));
+				
+				JLabel namel = new JLabel("New Name:");
+				JTextField nl = new JTextField(10);
+				
+				namePanel.add(namel);
+				namePanel.add(nl);
+				
+				int confirm = JOptionPane.showConfirmDialog(new JFrame(), namePanel, "Enter new name", JOptionPane.OK_CANCEL_OPTION);
+				if(confirm == JOptionPane.OK_OPTION) {
+					selectedImage.setName(nl.getText());
+					albumList.updateUI();
+				}
+			}
+			RedHawkPhotos.writeOut();
 		}
 	}
 
@@ -163,8 +206,13 @@ public class ImageLibrary {
 				JOptionPane.showMessageDialog(new JFrame(), "Invalid File Path");
 				return false;
 			}
+			System.out.println(album.size() - 1);
+			album.get(album.size() - 1).setKey(album.size() - 1); 
+			System.out.println(album.get(album.size() - 1).getKey());
 			model.addElement(album.get(album.size() - 1));
+			System.out.println(model.indexOf(album.get(album.size() - 1)));
 			albumList.setModel(model);
+			System.out.println(album.size());
 		}
 		return true;
 	}
@@ -173,9 +221,9 @@ public class ImageLibrary {
 	 *  
 	 * @return true if the imageViewer was created. False if otherwise
 	 */
-	boolean viewImage() {
+	boolean viewImage(Image img) {
 		try {
-			ImageViewer a = new ImageViewer(selectedImage);
+			ImageViewer a = new ImageViewer(img);
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(new JFrame(), "Invalid file");
 			e.printStackTrace();
@@ -192,7 +240,25 @@ public class ImageLibrary {
 	 *         false if otherwise
 	 */
 	boolean deleteImage(Image img) {
-		return false;
+		try {
+			albumList.clearSelection();
+			int imageKey = img.getKey();
+			model.remove(imageKey);
+			System.out.println(imageKey);
+			//album.remove(imageKey);
+			System.out.println(imageKey);
+			Set<Integer> keys = album.keySet();
+			for (int elt : keys) {
+				if (elt > imageKey) {
+					album.get(elt).setKey(album.get(elt).getKey() - 1);
+				}
+			}
+			albumList.setModel(model);
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	/**
@@ -220,7 +286,40 @@ public class ImageLibrary {
 	 * @param img Image object to be searched
 	 * @return index where image is stored
 	 */
-	int seachImage(Image img) {
-		return 1;
+	void searchImage() {
+		JPanel searchOptions = new JPanel();
+		searchOptions.setLayout(new GridLayout(0, 2, 3, 3));
+		
+		JLabel fileName = new JLabel("File Name: ");
+		JTextField namef = new JTextField(10);
+
+		searchOptions.add(fileName);
+		searchOptions.add(namef);
+		
+		int confirm = JOptionPane.showConfirmDialog(new JFrame(), searchOptions, "Input File Name", JOptionPane.OK_CANCEL_OPTION);
+		if(confirm == JOptionPane.OK_OPTION) {
+			try {
+				DefaultListModel<Image> searchmodel = new DefaultListModel<>();
+				Set<Integer> keys = album.keySet();
+				for (int elt : keys) {
+					if (album.get(elt).toString().equals(namef.getText())) {
+						searchmodel.addElement(album.get(elt));
+					}
+				}
+				JList<Image> searchList = new JList<>();
+				searchList.setModel(searchmodel);
+				JScrollPane searchpane = new JScrollPane(searchList, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+						JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+				searchpane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 13));
+				searchpane.getVerticalScrollBar().setPreferredSize(new Dimension(13, 0));
+				int confirm2 = JOptionPane.showConfirmDialog(new JFrame(), searchpane, "Select Image", JOptionPane.OK_CANCEL_OPTION);
+				if(confirm2 == JOptionPane.OK_OPTION) {
+					viewImage(searchList.getSelectedValue());
+				}
+			}
+			catch(Exception e1) {
+				JOptionPane.showMessageDialog(new JFrame(), "Invalid File Name");
+			}
+		}
 	}
 }
