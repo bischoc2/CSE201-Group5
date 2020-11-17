@@ -1,4 +1,6 @@
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
 	
 	/** User class creates users (accounts) with their own image library
 	 * 
