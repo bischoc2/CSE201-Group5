@@ -1,13 +1,19 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -20,15 +26,17 @@ import java.util.Set;
  * @version 0.2
  * @since 10-14-2020
  */
+@SuppressWarnings("serial")
 public class ImageLibrary implements Serializable {
 
-	protected JFrame mainFrame;
+	transient protected JFrame mainFrame;
 	protected JTextArea infoText;
-	protected JList<Image> albumList;
-	protected HashMap<Integer, Image> album;
-	protected DefaultListModel<Image> model;
+	transient protected JList<Image> albumList;
+	transient protected HashMap<Integer, Image> album;
+	transient protected DefaultListModel<Image> model;
 	protected Image selectedImage;
-
+    protected JScrollPane scrollPane;
+    
 	/**
 	 * Basic Constructor
 	 * 
@@ -38,11 +46,10 @@ public class ImageLibrary implements Serializable {
 		frameSetUp();
 		scrollSetUp();
 		infoSetUp();
-		//mainFrame.setVisible(true); // this line might be put in another class?
 	}
 	
 	/**
-	 * Sets up the main JFrame
+	 * Sets up the main JFrame, stores it in the instance variable mainFrame
 	 * 
 	 */
 	void frameSetUp() {
@@ -87,12 +94,45 @@ public class ImageLibrary implements Serializable {
 		pane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 13));
 		pane.getVerticalScrollBar().setPreferredSize(new Dimension(13, 0));
 		mainFrame.add(pane);
+		scrollPane = pane;
+		albumList = imageFile;
+	}
+	
+	void InscrollSetUp() {
+		JList<Image> imageFile = new JList<>();
+		imageFile.setModel(model);
+		imageFile.addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				selectedImage = imageFile.getSelectedValue();
+				/*
+				 * Generic image info for testing String name = "File Name: " +
+				 * selectedImage.name + "\n"; String size = "File Size: " + selectedImage.size +
+				 * "\n"; more/accurate info will go here later
+				 */
+				if (selectedImage == null) {
+					infoText.setText("Path: ");
+				} else {
+					String infstr = "Path: " + selectedImage.getPath();
+					infoText.setText(infstr);
+				}
+			}
+
+		});
+
+		JScrollPane pane = new JScrollPane(imageFile, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		pane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 13));
+		pane.getVerticalScrollBar().setPreferredSize(new Dimension(13, 0));
+		mainFrame.add(pane);
+		scrollPane = pane;
 		albumList = imageFile;
 	}
 
 
 	/**
-	 * Sets up info plane
+	 * Sets up info pane; UI where users will manage their images
 	 * 
 	 */
 	void infoSetUp() {
@@ -145,10 +185,10 @@ public class ImageLibrary implements Serializable {
 	}
 	
 	/**<p>The UpList Class is an inner class acting as an action listener, meant to track events on the main UI:</p>
-	 * Save
-	 * Upload
-	 * Delete
-	 * And view
+	 * <p>Save</p>
+	 * <p>Upload</p>
+	 * <p>Delete</p>
+	 * <p>And view</p>
 	 * 
 	 * @author Josha Bonsu
 	 * @version 0.12
@@ -186,7 +226,6 @@ public class ImageLibrary implements Serializable {
 					albumList.updateUI();
 				}
 			}
-			RedHawkPhotos.writeOut();
 		}
 	}
 
@@ -196,14 +235,19 @@ public class ImageLibrary implements Serializable {
 	 * @return true if the images was successfully uploaded, false if otherwise.
 	 */
 	boolean uploadImage() {
+		FileNameExtensionFilter imgFilter = new FileNameExtensionFilter("Images", "png", "jpg", "jpeg");
 		JFileChooser inImg = new JFileChooser();
+		inImg.setFileFilter(imgFilter);
+		inImg.setAcceptAllFileFilterUsed(false);
 		int approved = inImg.showOpenDialog(mainFrame);
 		if (approved == JFileChooser.APPROVE_OPTION) {
 			File imf = inImg.getSelectedFile();
 			try {
+				File f = new File(imf.getPath());
+				BufferedImage temp = ImageIO.read(f);
 				album.put(album.size(), new Image(imf.getPath()));
 			} catch (Exception e) {
-				JOptionPane.showMessageDialog(new JFrame(), "Invalid File Path");
+				JOptionPane.showMessageDialog(new JFrame(), "Invalid File Type");
 				return false;
 			}
 			System.out.println(album.size() - 1);
@@ -213,6 +257,7 @@ public class ImageLibrary implements Serializable {
 			System.out.println(model.indexOf(album.get(album.size() - 1)));
 			albumList.setModel(model);
 			System.out.println(album.size());
+			RedHawkPhotos.writeOut();
 		}
 		return true;
 	}
@@ -229,6 +274,7 @@ public class ImageLibrary implements Serializable {
 			e.printStackTrace();
 			return false;
 		}
+		RedHawkPhotos.writeOut();
 		return true;
 	}
 
@@ -254,6 +300,7 @@ public class ImageLibrary implements Serializable {
 				}
 			}
 			albumList.setModel(model);
+			RedHawkPhotos.writeOut();
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -272,6 +319,7 @@ public class ImageLibrary implements Serializable {
 		try {
 			File savedImage = new File(img.getPath());
 			ImageIO.write(img.getPicture(), "jpg", savedImage);
+			RedHawkPhotos.writeOut();
 			return true;
 		}
 		catch(Exception e) {
@@ -320,6 +368,38 @@ public class ImageLibrary implements Serializable {
 			catch(Exception e1) {
 				JOptionPane.showMessageDialog(new JFrame(), "Invalid File Name");
 			}
+		}
+	}
+	private void writeObject(ObjectOutputStream oout1) {
+		try {
+			oout1.defaultWriteObject();
+			oout1.writeObject(albumList);
+			oout1.writeObject(album);
+			oout1.writeObject(model);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	private void readObject(ObjectInputStream oin1) {
+		try {
+			oin1.defaultReadObject();
+			albumList = (JList<Image>)oin1.readObject();
+			album = (HashMap<Integer, Image>)oin1.readObject();
+			model = (DefaultListModel<Image>)oin1.readObject();
+			mainFrame = new JFrame();
+			frameSetUp();
+			InscrollSetUp();
+			//mainFrame.add(scrollPane);
+			infoSetUp();
+			
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }
