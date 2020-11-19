@@ -18,8 +18,12 @@ public class RedHawkPhotos {
 	
 	static ArrayList<User> users = new ArrayList<User>();
 	
+	/** Main driver; Allows users to log in and open said users' ImageLibrary
+	 * 
+	 * @param args
+	 */
 	public static void main (String[] args) {
-		//User a = new User("alex", "1234");
+		writeIn();
 		User a = userSetUp();
 		JFrame logPanel = new JFrame();
 		logPanel.setSize(400, 200);
@@ -90,7 +94,7 @@ public class RedHawkPhotos {
 			}
 			
 		});
-		
+	
 		logpanel.add(un);
 		logpanel.add(userN);
 		logpanel.add(pw);
@@ -100,7 +104,10 @@ public class RedHawkPhotos {
 		logPanel.setVisible(true);
 	}
 	
-	
+	/** Displays the interface for creating new users and logging in to a specific account
+	 * 
+	 * @return the User object representing the user currently logging in
+	 */
 	public static User userSetUp() {
 		JLabel message = new JLabel("Are you a retuning user?");
 		int yesorno = JOptionPane.showConfirmDialog(new JFrame(), message, "User setup", JOptionPane.YES_NO_OPTION);
@@ -146,6 +153,9 @@ public class RedHawkPhotos {
 		}
 	}
 	
+	/** Writes out user data represented in the instance ArrayList <i>users</i> to a file named UserList
+	 * 
+	 */
 	public static void writeOut() {
 		try {
 			FileOutputStream fout = new FileOutputStream("UserList");
@@ -159,6 +169,9 @@ public class RedHawkPhotos {
 	}
 	
 	@SuppressWarnings("unchecked")
+	/** Reads in the UserList file and loads data into the instance ArrayList <i>users</i>
+	 * 
+	 */
 	public static void writeIn() {
 		try {
 			FileInputStream fin = new FileInputStream("UserList");
@@ -170,5 +183,4 @@ public class RedHawkPhotos {
 			e.printStackTrace();
 		}
 	}
-	
 }
