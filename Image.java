@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.*;
@@ -12,7 +11,9 @@ import javax.imageio.*;
  * @version 0.2
  * @since 10-14-2020
  */
+@SuppressWarnings("serial")
 public class Image implements Serializable {
+	
 	private transient BufferedImage picture;
 	private String ipath;
 	private int key;
@@ -39,6 +40,11 @@ public class Image implements Serializable {
 		key = akey;
 	}
 	
+	/**
+	 * returns records the key (position) of the image in the image library.
+	 * 
+	 * @return int key value
+	 */
 	public int getKey() {
 		return key;
 	}
@@ -91,6 +97,11 @@ public class Image implements Serializable {
 		picture = after;
 	}
 	
+	/** Helper method for stretch, return of a BufferedImage object
+	 * 
+	 * @param temp BufferedImage to be copied
+	 * @return copy of the BufferedImage object
+	 */
 	private BufferedImage deepCopy(BufferedImage temp) {
 		ColorModel cm = temp.getColorModel();
 		boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
@@ -150,8 +161,8 @@ public class Image implements Serializable {
 	}
 
 	
-	/**
-	 * Mirror the image
+	/** Flips the image over the Y-Axis
+	 * 
 	 */
 	public void mirror() {
 		int w = picture.getWidth();
@@ -162,19 +173,51 @@ public class Image implements Serializable {
 		picture = affineTransformOp.filter(picture, temp);
 	}
 
+	/** Returns the instance variable representing the modifiable image
+	 * 
+	 * @return picture instance variable
+	 */
 	public BufferedImage getPicture() {
 		return picture;
 	}
 
+	/** Return the path of the current image
+	 * 
+	 * @return path instance variable
+	 */
 	public String getPath() {
 		return ipath;
 	}
 	
+	/** Sets the name of the current image
+	 * 
+	 * @param str New name for the current image
+	 */
 	public void setName(String str) {
 		Name = str;
 	}
 
 	public String toString() {
 		return Name;
+	}
+	
+	private void writeObject(ObjectOutputStream oout2) {
+		try {
+			oout2.defaultWriteObject();
+			ImageIO.write(picture, "jpg", oout2);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void readObject(ObjectInputStream oin2) {
+		try {
+			oin2.defaultReadObject();
+			picture = ImageIO.read(oin2);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
