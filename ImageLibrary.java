@@ -25,20 +25,42 @@ import java.util.Set;
  * @author Josha Bonsu
  * @version 0.2
  * @since 10-14-2020
+ * @see 
  */
 @SuppressWarnings("serial")
 public class ImageLibrary implements Serializable {
 
-	transient protected JFrame mainFrame;
-	protected JTextArea infoText;
-	transient protected JList<Image> albumList;
-	transient protected HashMap<Integer, Image> album;
-	transient protected DefaultListModel<Image> model;
-	protected Image selectedImage;
-    protected JScrollPane scrollPane;
-    
 	/**
-	 * Basic Constructor
+	 * Main JFrame where images in the image library can be selected and managed
+	 */
+	transient protected JFrame mainFrame;
+	/**
+	 * Text displaying the path of the image
+	 */
+	private JTextArea infoText;
+	/**
+	 * List of images to be displayed in the image library
+	 */
+	transient private JList<Image> albumList;
+	/**
+	 * List of images the user has uploaded
+	 */
+	transient private HashMap<Integer, Image> album;
+	/**
+	 * List model for albumList
+	 */
+	transient private DefaultListModel<Image> model;
+	/**
+	 * Records the current image selected in the image library
+	 */
+	private Image selectedImage;
+	/**
+	 * Records the current size of the image library
+	 */
+    private int size;
+
+	/**
+	 * Basic Constructor, creates a new ImageLibrary and calls methods to set up the UI
 	 * 
 	 */
 	public ImageLibrary() {
@@ -94,7 +116,6 @@ public class ImageLibrary implements Serializable {
 		pane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 13));
 		pane.getVerticalScrollBar().setPreferredSize(new Dimension(13, 0));
 		mainFrame.add(pane);
-		scrollPane = pane;
 		albumList = imageFile;
 	}
 	
@@ -126,10 +147,8 @@ public class ImageLibrary implements Serializable {
 		pane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 13));
 		pane.getVerticalScrollBar().setPreferredSize(new Dimension(13, 0));
 		mainFrame.add(pane);
-		scrollPane = pane;
 		albumList = imageFile;
 	}
-
 
 	/**
 	 * Sets up info pane; UI where users will manage their images
@@ -245,18 +264,19 @@ public class ImageLibrary implements Serializable {
 			try {
 				File f = new File(imf.getPath());
 				BufferedImage temp = ImageIO.read(f);
-				album.put(album.size(), new Image(imf.getPath()));
+				album.put(size, new Image(imf.getPath()));
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(new JFrame(), "Invalid File Type");
 				return false;
 			}
-			System.out.println(album.size() - 1);
-			album.get(album.size() - 1).setKey(album.size() - 1); 
-			System.out.println(album.get(album.size() - 1).getKey());
-			model.addElement(album.get(album.size() - 1));
-			System.out.println(model.indexOf(album.get(album.size() - 1)));
+			System.out.println(size);
+			album.get(size).setKey(size); 
+			System.out.println(album.get(size).getKey());
+			model.addElement(album.get(size));
+			System.out.println(model.indexOf(album.get(size)));
 			albumList.setModel(model);
-			System.out.println(album.size());
+			System.out.println(size);
+			size += 1;
 			RedHawkPhotos.writeOut();
 		}
 		return true;
@@ -267,6 +287,10 @@ public class ImageLibrary implements Serializable {
 	 * @return true if the imageViewer was created. False if otherwise
 	 */
 	boolean viewImage(Image img) {
+		if(img == null) {
+			JOptionPane.showMessageDialog(new JFrame(), "No File Selected");
+			throw new NullPointerException();
+		}
 		try {
 			ImageViewer a = new ImageViewer(img);
 		} catch (Exception e) {
@@ -286,20 +310,28 @@ public class ImageLibrary implements Serializable {
 	 *         false if otherwise
 	 */
 	boolean deleteImage(Image img) {
+		if(img == null) {
+			JOptionPane.showMessageDialog(new JFrame(), "No File Selected");
+			throw new NullPointerException();
+		}
 		try {
-			albumList.clearSelection();
 			int imageKey = img.getKey();
-			model.remove(imageKey);
+			model.removeElement(img);
 			System.out.println(imageKey);
-			//album.remove(imageKey);
+			album.remove(imageKey);
 			System.out.println(imageKey);
-			Set<Integer> keys = album.keySet();
-			for (int elt : keys) {
-				if (elt > imageKey) {
-					album.get(elt).setKey(album.get(elt).getKey() - 1);
+			System.out.println(size);
+			for (int j = 0; j < size; j++) {
+				if (j > imageKey) {
+					int i;
+					i = album.get(j).getKey();
+					i = i - 1;
+					album.get(j).setKey(i);
+					album.put(i, album.get(j));
 				}
 			}
 			albumList.setModel(model);
+			size -= 1;
 			RedHawkPhotos.writeOut();
 			return true;
 		} catch (Exception e) {
@@ -316,6 +348,10 @@ public class ImageLibrary implements Serializable {
 	 * @return true if the image was successfully saved, false if otherwise
 	 */
 	boolean saveImage(Image img) {
+		if(img == null) {
+			JOptionPane.showMessageDialog(new JFrame(), "No File Selected");
+			throw new NullPointerException();
+		}
 		try {
 			File savedImage = new File(img.getPath());
 			ImageIO.write(img.getPicture(), "jpg", savedImage);
@@ -323,13 +359,14 @@ public class ImageLibrary implements Serializable {
 			return true;
 		}
 		catch(Exception e) {
+			JOptionPane.showMessageDialog(new JFrame(), "Unkown Error when saving");
 			e.printStackTrace();
 			return false;
 		}
 	}
 
 	/**
-	 * searches for an image
+	 * Searches for an image give a string
 	 * 
 	 * @param img Image object to be searched
 	 * @return index where image is stored
@@ -370,6 +407,13 @@ public class ImageLibrary implements Serializable {
 			}
 		}
 	}
+	
+	/**
+	 * writes the object data for this object
+	 * @param oout1 stream currently writing out
+	 * @see java.io.ObjectOutputStream#writeObject(Object)
+	 * @see RedHawkPhotos#writeOut
+	 */
 	private void writeObject(ObjectOutputStream oout1) {
 		try {
 			oout1.defaultWriteObject();
@@ -381,7 +425,13 @@ public class ImageLibrary implements Serializable {
 			e.printStackTrace();
 		}
 	}
-
+	
+	/**
+	 * Reads the object data for this object and repreforms setup for the main JFrame
+	 * @param oin1 stream currently reading in
+	 * @see java.io.ObjectInputStream#readObject(Object)
+	 * @see RedHawkPhotos#writeIn
+	 */
 	private void readObject(ObjectInputStream oin1) {
 		try {
 			oin1.defaultReadObject();
@@ -391,7 +441,6 @@ public class ImageLibrary implements Serializable {
 			mainFrame = new JFrame();
 			frameSetUp();
 			InscrollSetUp();
-			//mainFrame.add(scrollPane);
 			infoSetUp();
 			
 		} catch (ClassNotFoundException e) {
