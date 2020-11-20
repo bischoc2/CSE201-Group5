@@ -9,13 +9,23 @@ import java.util.ArrayList;
 
 import javax.swing.*;
 
-/** The RedHawkPhotos class in the driver for the entire RedHawk Photos project. Lets users login and interact with their own image libraries
+/** <p> The RedHawkPhotos class is the driver for the entire RedHawk Photos project.</p> 
+ * 	<p> Application enables users to create image libraries for the purpose of storing images to be modified.</p>
+ *  <p> once a user has created an image library any changes made will be saved. User have to option to back back in</p>
+ *  <p> to view their data </p>
  *  @author Josha Bonsu
  *  @version 0.2
  *  @since 10-14-2020
+ *  @see Users
+ *  @see ImageLibrary
+ *  @see Image
+ *  @see ImageViewer
  */
 public class RedHawkPhotos {
 	
+	/**
+	 * List of all users, their login info, and their assosiated image libraries 
+	 */
 	static ArrayList<User> users = new ArrayList<User>();
 	
 	/** Main driver; Allows users to log in and open said users' ImageLibrary
@@ -127,9 +137,10 @@ public class RedHawkPhotos {
 			if(confirm == JOptionPane.OK_OPTION) {
 				return userList.getSelectedValue();
 			}
+			System.exit(0);
 			return null;
 		}
-		else {
+		else if (yesorno == JOptionPane.NO_OPTION) {
 			JPanel userOptions = new JPanel();
 			userOptions.setLayout(new GridLayout(0, 2, 3, 3));
 			
@@ -149,8 +160,11 @@ public class RedHawkPhotos {
 				users.add(a);
 				return a;
 			}
+			System.exit(0);
 			return null;
 		}
+		System.exit(0);
+		return null;
 	}
 	
 	/** Writes out user data represented in the instance ArrayList <i>users</i> to a file named UserList
