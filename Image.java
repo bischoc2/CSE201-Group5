@@ -18,6 +18,7 @@ public class Image implements Serializable {
 	private String ipath;
 	private int key;
 	private String Name;
+	private Color[][] colorSet;
 
 	/**
 	 * Basic Constructor that reads in the image file
@@ -29,6 +30,16 @@ public class Image implements Serializable {
 		ipath = fileName;
 		picture = ImageIO.read(new File(fileName));
 		Name = ipath.substring(ipath.lastIndexOf("\\", ipath.length() - 1) + 1);
+		colorSet = new Color[picture.getHeight()][picture.getWidth()];
+		recordColorSet();
+	}
+	
+	private void recordColorSet() {
+		for (int i = 0; i < picture.getHeight(); i++) {
+			for (int j = 0; j < picture.getWidth(); j++) {
+				colorSet[i][j] = new Color(picture.getRGB(j, i));
+			}
+		}
 	}
 	
 	/**
@@ -150,7 +161,7 @@ public class Image implements Serializable {
 		int height = picture.getHeight();
 		for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
-				Color c = new Color(picture.getRGB(j, i));
+				Color c = colorSet[i][j];
 				int red = (int)(c.getRed() * R / 255);
 				int green = (int)(c.getGreen() * G / 255 );
 				int blue = (int)(c.getBlue() * B / 255);
