@@ -5,18 +5,31 @@ import java.awt.image.*;
 import java.io.*;
 import javax.imageio.*;
 
-/** Class that converts any image on disk into a BufferedImage, allowing it to me modified with the given tools 
+/** Class that converts any image on disk into a BufferedImage, allowing it to me modified with the given tools.
  * 
  * @author Zeyu Su
  * @version 0.2
  * @since 10-14-2020
+ * 
  */
 @SuppressWarnings("serial")
 public class Image implements Serializable {
 	
+	/**
+	 * data representation of the physical image
+	 */
 	private transient BufferedImage picture;
+	/**
+	 * Path of the image on the disk
+	 */
 	private String ipath;
-	private int key;
+	/**
+	 * Key for retrieval of this image
+	 */
+	private int key
+	/**
+	 * Name of the image
+	 */;
 	private String Name;
 	private Color[][] colorSet;
 
@@ -33,7 +46,7 @@ public class Image implements Serializable {
 		colorSet = new Color[picture.getHeight()][picture.getWidth()];
 		recordColorSet();
 	}
-	
+
 	private void recordColorSet() {
 		for (int i = 0; i < picture.getHeight(); i++) {
 			for (int j = 0; j < picture.getWidth(); j++) {
@@ -69,6 +82,9 @@ public class Image implements Serializable {
 	 * @param width  the width user want to crop
 	 */
 	public void crop(int x, int y, int width, int height) {
+		if(width < 0 || height < 0) {
+			throw new IllegalArgumentException();
+		}
 		int maxWidth = picture.getWidth();
 		int maxHeight = picture.getHeight();
 		width = width < maxWidth ? width : maxWidth;
@@ -94,6 +110,7 @@ public class Image implements Serializable {
 	 * 
 	 * @param height the scale of height user want to stretch to
 	 * @param width  the scale of width user want to stretch to
+	 * @see Image#deepCopy(BufferedImage)
 	 */
 	public void stretch(double width, double height) {
 		int w = picture.getWidth();
@@ -108,7 +125,7 @@ public class Image implements Serializable {
 		picture = after;
 	}
 	
-	/** Helper method for stretch, return of a BufferedImage object
+	/** Returns of a BufferedImage object identical to the one sent to it
 	 * 
 	 * @param temp BufferedImage to be copied
 	 * @return copy of the BufferedImage object
@@ -121,7 +138,7 @@ public class Image implements Serializable {
 	}
 	
 	/**
-	 * Change the saturation of the image with user specified number
+	 * Changes the saturation of the image with user specified number
 	 * 
 	 * @param degree the number of degree that user want to change to
 	 */
@@ -156,7 +173,10 @@ public class Image implements Serializable {
 	 * @param G the green value for the color of the image
 	 * @param B the blue value for the color of the image
 	 */
-	public void monochrome(int R, int G, int B) {
+	public void monochrome(int R, int G, int B) throws Exception {
+		if(R > 255 || R < 0 || B > 255 || B < 0 || G > 255 || G < 0) {
+			throw new IllegalArgumentException();
+		}
 		int width = picture.getWidth();
 		int height = picture.getHeight();
 		for (int i = 0; i < height; i++) {
@@ -208,10 +228,20 @@ public class Image implements Serializable {
 		Name = str;
 	}
 
+	/**
+	 * Return the name of the image
+	 * @return the instance variable Name
+	 */
 	public String toString() {
 		return Name;
 	}
 	
+	/**
+	 * Writes the object data for this object. Write the BufferedImage seperately
+	 * @param oout2 stream currently writing out
+	 * @see java.io.ObjectOutputStream#writeObject(Object)
+	 * @see RedHawkPhotos#writeOut
+	 */
 	private void writeObject(ObjectOutputStream oout2) {
 		try {
 			oout2.defaultWriteObject();
@@ -221,6 +251,12 @@ public class Image implements Serializable {
 		}
 	}
 	
+	/**
+	 * Read in the object data for this object give the file UserList. Reads the BufferedImage seperately
+	 * @param oin2 stream currently being read in
+	 * @see java.io.ObjectInputStream#readObject(Object)
+	 * @see RedHawkPhotos#writeIn
+	 */
 	private void readObject(ObjectInputStream oin2) {
 		try {
 			oin2.defaultReadObject();
