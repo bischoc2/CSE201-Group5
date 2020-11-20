@@ -1,16 +1,26 @@
 import java.io.Serializable;
 
 @SuppressWarnings("serial")
+/** User class creates users (accounts) with their own image library
+ * 
+ * @author Patrica Lennon
+ * @version 0.2
+ * @since 10-14-2020
+ */
+
 public class User implements Serializable {
 	
-	/** User class creates users (accounts) with their own image library
-	 * 
-	 * @author Patrica Lennon
-	 * @version 0.2
-	 * @since 10-14-2020
+	/**
+	 * represents this users username
 	 */
 	private String userName;
+	/**
+	 * represents this users password
+	 */
 	private String password;
+	/**
+	 * represents the image library that belong this this user, containing all their photos
+	 */
 	private ImageLibrary imagelibrary;
 	
 	/** Basic constructor that creates a new User
@@ -45,6 +55,10 @@ public class User implements Serializable {
 		return imagelibrary;
 	}
 	
+	/**
+	 * Return the username of the this user
+	 * @return the instance variable userName
+	 */
 	public String toString(){
 		return userName;
 	}
