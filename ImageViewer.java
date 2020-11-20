@@ -1,6 +1,8 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 
 import javax.swing.*;
@@ -15,26 +17,125 @@ import javax.swing.*;
  */
 public class ImageViewer {
 	
+	/**
+	 * The JFrame the image and tools will be displayed on
+	 */
 	private JFrame imageFrame;
+	/**
+	 * The image object being displayed
+	 */
 	private Image image;
+	/**
+	 * The imgLabel that represent the image object being display; stores what will actually appear in the GUI
+	 */
 	private JLabel imgLabel;
+	/**
+	 * Records x coordinates of the cursors current position when the mouse is clicked on the image
+	 * @see Image#crop(int, int, int, int)
+	 */
+	private int mx1;
+	/**
+	 * Records y coordinates of the cursors current position when the mouse is clicked on the image
+	 * @see Image#crop(int, int, int, int)
+	 */
+	private int my1;
+	/**
+	 * Records x coordinates of the cursors current position when the mouse is clicked on the image
+	 * @see Image#crop(int, int, int, int)
+	 */
+	private int mx2;
+	/**
+	 * Records y coordinates of the cursors current position when the mouse is clicked on the image
+	 * @see Image#crop(int, int, int, int)
+	 */
+	private int my2;
+	/**
+	 * <p> int values that records the state for the crop function </p>
+	 * 0 => Not active
+	 * 1 => Active; recording first click
+	 * 2 =? Active; recording second click
+	 * @see Image#crop(int, int, int, int)
+	 */
+	private int cropFlag;
 	
-	/** Basic constructor. Calls methods to create imageViewerUI
-	 * 
+	/** <p>Basic constructor. Calls methods to create imageViewerUI </p>
 	 * @param img image object to be viewed
 	 */
-
 	public ImageViewer(Image img) {
+		
 		image = img;
 		JFrame iframe = new JFrame();
 		iframe.setLayout(new BoxLayout(iframe.getContentPane(), BoxLayout.Y_AXIS));
 		
 		JLabel pic = new JLabel(new ImageIcon(img.getPicture()));
 		imgLabel = pic;
+		
 		JScrollPane ipane = new JScrollPane(pic, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		ipane.getHorizontalScrollBar().setPreferredSize(new Dimension(0, 13));
 		ipane.getVerticalScrollBar().setPreferredSize(new Dimension(13, 0));
+		ipane.addMouseListener(new MouseListener() 
+	
+		/**
+		 * Inner class that records clicks for the crop function. Sets the instance variables <i> mx1 and my1 </i>
+		 * to the x and y coordinates of the cursor at the first click when the cropFlag is 1, and sets the instance
+		 * variable of the second the cursor at a secondary click when the cropFlag is to. cropFlag is set to 0 afterwards.
+		 * instance variables are used to calculate parameters for the crop function.
+		 * @see Image#crop(int, int, int, int)
+		 */
+		{
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(cropFlag == 1) {
+					mx1 = e.getX();
+					my1 = e.getY();
+					System.out.println(mx1 + " " + my1);
+					cropFlag = 2;
+				}
+				else if(cropFlag == 2) {
+					try {
+					mx2 = e.getX();
+					my2 = e.getX();
+					System.out.println(mx2 + " " + my2);
+					image.crop(mx1, my1, mx2 - mx1, my2 - my1);
+					imgLabel.setIcon(new ImageIcon(image.getPicture()));
+					imgLabel.repaint();
+					imageFrame.revalidate();
+					cropFlag = 0;
+					RedHawkPhotos.writeOut();
+					} catch (Exception ei) {
+						JOptionPane.showMessageDialog(new JFrame(), "Invalid input. Read crop instructions");
+						cropFlag = 0;
+					}
+				}
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 		iframe.add(ipane);
 		iframe.setSize(500, 800);
 		iframe.setResizable(true);
@@ -42,7 +143,6 @@ public class ImageViewer {
 		imageFrame = iframe;
 		controlPanelSetUp();
 		iframe.setVisible(true);
-		
 	}
 	
 	/** Sets up UI where modification tools are stored.
@@ -52,7 +152,6 @@ public class ImageViewer {
 		JPanel ctrl = new JPanel();
 		ctrl.setSize(500, 300);
 		
-		//Saturation 
 		JTextField sat = new JTextField(6);
 		JLabel satText = new JLabel("Saturation");
 		sat.setActionCommand("sat");
@@ -81,14 +180,14 @@ public class ImageViewer {
 					image.saturation(tempDouble);
 					imgLabel.repaint();
 				}
+				
 				else if (e.getActionCommand().equals("mir")) {
 					image.mirror();
 					imgLabel.setIcon(new ImageIcon(image.getPicture()));
 					imgLabel.repaint();
 					imageFrame.revalidate();
-
-					
 				}
+				
 				else if (e.getActionCommand().equals("rest")) {
 					try {
 						image.restore();
@@ -102,6 +201,7 @@ public class ImageViewer {
 					imageFrame.revalidate();
 
 				}
+				
 				else if (e.getActionCommand().equals("str")) {
 					JPanel stretchOptions = new JPanel();
 					stretchOptions.setLayout(new GridLayout(0, 2, 3, 3));
@@ -164,42 +264,17 @@ public class ImageViewer {
 				}
 				
 				else if(e.getActionCommand().equals("crop")){
-					JPanel cropOptions = new JPanel();
-					cropOptions.setLayout(new GridLayout(0, 2, 3, 3));
 					
-					JLabel LeftX = new JLabel("Top Left X Coords: ");
-					JLabel LeftY = new JLabel("Top Right Y Coords: ");
-					JLabel Width = new JLabel("Width: ");
-					JLabel Height = new JLabel("Height: ");
-					JTextField lx = new JTextField(4);
-					JTextField ly = new JTextField(4);
-					JTextField h = new JTextField(4);
-					JTextField w = new JTextField(4);
-					
-					cropOptions.add(LeftX);
-					cropOptions.add(lx);
-					cropOptions.add(LeftY);
-					cropOptions.add(ly);
-					cropOptions.add(Width);
-					cropOptions.add(w);
-					cropOptions.add(Height);
-					cropOptions.add(h);
-					
-					int confirm = JOptionPane.showConfirmDialog(new JFrame(), cropOptions, "Input Crop Parameters", JOptionPane.OK_CANCEL_OPTION);
-					if(confirm == JOptionPane.OK_OPTION) {
-						try {
-							image.crop(Integer.parseInt(lx.getText()), Integer.parseInt(ly.getText()), Integer.parseInt(w.getText()), Integer.parseInt(h.getText()));
-						}
-						catch(Exception e1) {
-							JOptionPane.showMessageDialog(new JFrame(), "Crop Parameters Invalid");
-						}
-						imgLabel.setIcon(new ImageIcon(image.getPicture()));
-						imgLabel.repaint();
-						imageFrame.revalidate();
+					if(cropFlag == 0) {
+						JOptionPane.showMessageDialog(new JFrame(), "Select top left and bottom right of the cropped image. Click crop again to cancel");
+						cropFlag = 1;
 					}
+					else
+						cropFlag = 0;
 				}
 				RedHawkPhotos.writeOut();
 			}
+			
 		};
 		
 		mirror.addActionListener(imgList);
